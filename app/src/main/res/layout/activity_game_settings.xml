@@ -25,6 +25,7 @@
         app:layout_constraintTop_toBottomOf="@id/playersNumberTv" />
     
     <Button
+        android:id="@+id/SaveBt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Salvar"
