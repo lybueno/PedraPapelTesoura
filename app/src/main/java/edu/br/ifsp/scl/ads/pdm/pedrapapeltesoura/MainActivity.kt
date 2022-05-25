@@ -1,10 +1,13 @@
 package edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,9 +28,27 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
+        var playerMove: Int = 0
+
+        // TODO refatorar metodo - escolhaUsuario
+        activityMainBinding.paperIv.setOnClickListener{
+            playerMove = 1
+        }
+        activityMainBinding.rockIv.setOnClickListener{
+            playerMove = 2
+        }
+        activityMainBinding.scissorsIv.setOnClickListener{
+            playerMove = 3
+        }
+        //
+
         randomicGenerator = Random(System.currentTimeMillis())
 
         activityMainBinding.playBt.setOnClickListener {
+
+            activityMainBinding.resultTv.visibility = View.INVISIBLE
+
+            // TODO refatorar metodo - imagemPC
             val cpuMove: Int = randomicGenerator.nextInt(1..3)
             if(cpuMove == 1){
                 activityMainBinding.cpuIv.setImageResource(
@@ -42,18 +63,44 @@ class MainActivity : AppCompatActivity() {
                     resources.getIdentifier("scissors", "drawable", packageName)
                 )
             }
+
+            // TODO refatorar
+            if(playerMove ==  cpuMove){
+                activityMainBinding.resultTv.setText("Empatou")
+
+            } else {
+                if(playerMove == 1 ) {
+                    if(cpuMove == 2){
+                        activityMainBinding.resultTv.setText("Você ganhou")
+                    } else {
+                        activityMainBinding.resultTv.setText("Você perdeu")
+                    }
+                } else if(playerMove == 2){
+                    if(cpuMove == 3){
+                        activityMainBinding.resultTv.setText("Você ganhou")
+                    } else {
+                        activityMainBinding.resultTv.setText("Você perdeu")
+                    }
+                } else {
+                    if(cpuMove == 1){
+                        activityMainBinding.resultTv.setText("Você ganhou")
+                    } else {
+                        activityMainBinding.resultTv.setText("Você perdeu")
+                    }
+                }
+            }
+
+            activityMainBinding.resultTv.visibility = View.VISIBLE
         }
 
-        val playerMovePaper = activityMainBinding.paperIv.setOnClickListener{
-            Toast.makeText(this, "Clicou em papel", Toast.LENGTH_SHORT).show()
-        }
+
 
 
 
         settingsActivityLaucher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             result ->
                 if(result.resultCode == RESULT_OK){
-                    // modificacoes na view
+                    //TODO modificacoes na view
                 }
         }
 
