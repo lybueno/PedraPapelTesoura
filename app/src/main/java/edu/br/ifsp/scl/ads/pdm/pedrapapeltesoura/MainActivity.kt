@@ -1,7 +1,6 @@
 package edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura
 
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,7 +12,6 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura.databinding.ActivityMainBinding
-import java.lang.Byte.decode
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -35,26 +33,19 @@ class MainActivity : AppCompatActivity() {
         val rock: ImageView = activityMainBinding.rockIv
         val scissors: ImageView =  activityMainBinding.scissorsIv
 
-        // TODO refatorar metodo - escolhaUsuario
+        // Tratando a imagem escolhida pelo usuario e atribuindo um valor a ela
         paper.setOnClickListener{
             playerMove = 1
-            paper.setBackgroundColor(Color.parseColor("#FFF000"))
-            rock.setBackgroundColor(Color.parseColor("#FFFFFF"))
-            scissors.setBackgroundColor(Color.parseColor("#FFFFFF"))
+            changeBackgroundColor(paper, rock, scissors)
         }
         rock.setOnClickListener{
             playerMove = 2
-            rock.setBackgroundColor(Color.parseColor("#FFF000"))
-            paper.setBackgroundColor(Color.parseColor("#FFFFFF"))
-            scissors.setBackgroundColor(Color.parseColor("#FFFFFF"))
+            changeBackgroundColor(rock, paper, scissors)
         }
        scissors.setOnClickListener{
             playerMove = 3
-            scissors.setBackgroundColor(Color.parseColor("#FFF000"))
-            paper.setBackgroundColor(Color.parseColor("#FFFFFF"))
-            rock.setBackgroundColor(Color.parseColor("#FFFFFF"))
+            changeBackgroundColor(scissors, paper, rock)
         }
-        //
 
         randomicGenerator = Random(System.currentTimeMillis())
 
@@ -62,91 +53,105 @@ class MainActivity : AppCompatActivity() {
 
             activityMainBinding.resultTv.visibility = View.INVISIBLE
 
-            // TODO refatorar metodo - imagemPC
-
-
-            // TODO refatorar
+            // comparando as jogadas e atribuindo o placar
             if(playerMove == 0) {
                 Toast.makeText(this, "Selecione uma opção", Toast.LENGTH_SHORT).show()
             }else{
+
                 val cpuMove: Int = generateCPUMove(activityMainBinding.cpuIv)
+                val result: String
+
                 if(playerMove ==  cpuMove){
-                    activityMainBinding.resultTv.setText("Empatou")
+                    result = "Empatou"
                 } else {
                     if(playerMove == 1 ) {
                         if(cpuMove == 2){
-                            activityMainBinding.resultTv.setText("Você ganhou")
+                            result = "Você ganhou"
                         } else {
-                            activityMainBinding.resultTv.setText("Você perdeu")
+                            result = "Você perdeu"
                         }
                     } else if(playerMove == 2){
                         if(cpuMove == 3){
-                            activityMainBinding.resultTv.setText("Você ganhou")
+                            result = "Você ganhou"
                         } else {
-                            activityMainBinding.resultTv.setText("Você perdeu")
+                            result = "Você perdeu"
                         }
                     } else {
                         if(cpuMove == 1){
-                            activityMainBinding.resultTv.setText("Você ganhou")
+                            result = "Você ganhou"
                         } else {
-                            activityMainBinding.resultTv.setText("Você perdeu")
+                            result = "Você perdeu"
                         }
                     }
                 }
+                activityMainBinding.resultTv.setText(result)
             }
 
             activityMainBinding.resultTv.visibility = View.VISIBLE
         }
 
-
+        // verificando se usuario selecionou 2 oponentes para tratar o placar e as imagens dos oponentes
         settingsActivityLaucher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             result ->
                 if(result.resultCode == RESULT_OK) {
+
                     activityMainBinding.resultTv.visibility = View.INVISIBLE
+
                     if (result.data != null) {
                         val appSettings: AppSettings? =
                             result.data?.getParcelableExtra<AppSettings>(Intent.EXTRA_USER)
 
                         if (appSettings != null) {
 
-                            activityMainBinding.cpuIv.setImageResource(
-                                    resources.getIdentifier("cpu", "drawable", packageName))
-                            activityMainBinding.cpu2Iv.visibility = View.VISIBLE
-                            activityMainBinding.playBt.setOnClickListener {
-                                
-                                val cpuMove: Int = generateCPUMove(activityMainBinding.cpuIv)
-                                val cpu2Move: Int = generateCPUMove(activityMainBinding.cpu2Iv)
+                            if (appSettings.playersNumber == 2) {
+                                activityMainBinding.cpuIv.setImageResource(
+                                    resources.getIdentifier("cpu", "drawable", packageName)
+                                )
+                                activityMainBinding.cpu2Iv.visibility = View.VISIBLE
+                                activityMainBinding.playBt.setOnClickListener {
 
-                                if ((cpuMove == cpu2Move && cpuMove == playerMove)) {
-                                    activityMainBinding.resultTv.setText("Empatou")
-                                } else {
-                                    if (playerMove == 1) {
-                                        if (cpuMove == 1 || cpu2Move == 1) {
-                                            activityMainBinding.resultTv.setText("Empatou")
-                                        } else if(cpuMove == 3 || cpu2Move == 3){
-                                            activityMainBinding.resultTv.setText("Você perdeu")
+                                    if(playerMove == 0) {
+                                        Toast.makeText(this, "Selecione uma opção", Toast.LENGTH_SHORT).show()
+                                    }else {
+                                        val cpuMove: Int = generateCPUMove(activityMainBinding.cpuIv)
+                                        val cpu2Move: Int = generateCPUMove(activityMainBinding.cpu2Iv)
+                                        val result: String
+
+                                        if (playerMove == 1) {
+                                            if (cpuMove == 3 || cpu2Move == 3) {
+                                                result = "Você perdeu"
+                                            } else if (cpuMove == 1 || cpu2Move == 1) {
+                                                result = "Empatou"
+                                            } else {
+                                                result = "Você ganhou"
+                                            }
+                                        } else if (playerMove == 2) {
+                                            if (cpuMove == 1 || cpu2Move == 1) {
+                                                result = "Você perdeu"
+                                            } else if (cpuMove == 2 || cpu2Move == 2) {
+                                                result = "Empatou"
+                                            } else {
+                                                result = "Você ganhou"
+                                            }
                                         } else {
-                                            activityMainBinding.resultTv.setText("Você ganhou")
+                                            if (cpuMove == 2 || cpu2Move == 2) {
+                                                result = "Você perdeu"
+                                            } else if (cpuMove == 3 || cpu2Move == 3) {
+                                                result = "Empatou"
+                                            } else {
+                                                result = "Você ganhou"
+                                            }
                                         }
-                                    } else if (playerMove == 2) {
-                                        if (cpuMove == 2 || cpu2Move == 2) {
-                                            activityMainBinding.resultTv.setText("Empatou")
-                                        } else if(cpuMove == 1 || cpu2Move == 1) {
-                                            activityMainBinding.resultTv.setText("Você perdeu")
-                                        } else {
-                                            activityMainBinding.resultTv.setText("Você ganhou")
-                                        }
-                                    } else {
-                                        if (cpuMove == 3 || cpu2Move == 3) {
-                                            activityMainBinding.resultTv.setText("Empatou")
-                                        } else if(cpuMove == 2 || cpu2Move == 2) {
-                                            activityMainBinding.resultTv.setText("Você perdeu")
-                                        } else {
-                                            activityMainBinding.resultTv.setText("Você ganhou")
-                                        }
+
+                                        activityMainBinding.resultTv.setText(result)
+                                        activityMainBinding.resultTv.visibility = View.VISIBLE
                                     }
                                 }
-                                activityMainBinding.resultTv.visibility = View.VISIBLE
+                            } else {
+                                activityMainBinding.cpu2Iv.visibility = View.GONE
+                                activityMainBinding.cpuIv.setImageResource(
+                                    resources.getIdentifier("cpu", "drawable", packageName)
+                                )
                             }
                         }
                     }
@@ -185,5 +190,11 @@ class MainActivity : AppCompatActivity() {
             )
         }
         return cpuMove
+    }
+
+    private fun changeBackgroundColor(yellowIv: ImageView, whiteIv: ImageView, white2Iv: ImageView){
+        yellowIv.setBackgroundColor(Color.parseColor("#FFF000"))
+        whiteIv.setBackgroundColor(Color.parseColor("#FFFFFF"))
+        white2Iv.setBackgroundColor(Color.parseColor("#FFFFFF"))
     }
 }
