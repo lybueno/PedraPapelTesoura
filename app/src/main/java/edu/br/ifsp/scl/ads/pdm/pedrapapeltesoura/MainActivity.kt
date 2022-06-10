@@ -11,7 +11,9 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura.controller.AppSettingsController
 import edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura.databinding.ActivityMainBinding
+import edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura.model.AppSettings
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -21,6 +23,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var randomicGenerator: Random
 
     private lateinit var settingsActivityLaucher: ActivityResultLauncher<Intent>
+
+    private val appSettingsController: AppSettingsController by lazy {
+        AppSettingsController(this)
+    }
+
+    private val appSettings: AppSettings by lazy {
+        appSettingsController.recoverSetting()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +57,16 @@ class MainActivity : AppCompatActivity() {
             changeBackgroundColor(scissors, paper, rock)
         }
 
+        // TODO refatorar jogo de 2 oponentes para funcao e chamar com o botao e a GameSettingsActivity
+        if(appSettings.playersNumber == 2){
+            activityMainBinding.cpuIv.setImageResource(
+                resources.getIdentifier("cpu", "drawable", packageName)
+            )
+            activityMainBinding.cpu2Iv.visibility = View.VISIBLE
+        } else {
+            activityMainBinding.cpu2Iv.visibility = View.GONE
+        }
+
         randomicGenerator = Random(System.currentTimeMillis())
 
         activityMainBinding.playBt.setOnClickListener {
@@ -61,30 +81,63 @@ class MainActivity : AppCompatActivity() {
                 val cpuMove: Int = generateCPUMove(activityMainBinding.cpuIv)
                 val result: String
 
-                if(playerMove ==  cpuMove){
-                    result = "Empatou"
-                } else {
-                    if(playerMove == 1 ) {
-                        if(cpuMove == 2){
-                            result = "Você ganhou"
-                        } else {
-                            result = "Você perdeu"
-                        }
-                    } else if(playerMove == 2){
-                        if(cpuMove == 3){
-                            result = "Você ganhou"
-                        } else {
-                            result = "Você perdeu"
-                        }
+                if(appSettings.playersNumber == 1){
+                    if(playerMove ==  cpuMove){
+                        result = "Empatou"
                     } else {
-                        if(cpuMove == 1){
-                            result = "Você ganhou"
+                        if(playerMove == 1 ) {
+                            if(cpuMove == 2){
+                                result = "Você ganhou"
+                            } else {
+                                result = "Você perdeu"
+                            }
+                        } else if(playerMove == 2){
+                            if(cpuMove == 3){
+                                result = "Você ganhou"
+                            } else {
+                                result = "Você perdeu"
+                            }
                         } else {
-                            result = "Você perdeu"
+                            if(cpuMove == 1){
+                                result = "Você ganhou"
+                            } else {
+                                result = "Você perdeu"
+                            }
                         }
                     }
+                } else {
+                    val cpuMove: Int = generateCPUMove(activityMainBinding.cpuIv)
+                    val cpu2Move: Int = generateCPUMove(activityMainBinding.cpu2Iv)
+                    val result: String
+
+                    if (playerMove == 1) {
+                        if (cpuMove == 3 || cpu2Move == 3) {
+                            result = "Você perdeu"
+                        } else if (cpuMove == 1 || cpu2Move == 1) {
+                            result = "Empatou"
+                        } else {
+                            result = "Você ganhou"
+                        }
+                    } else if (playerMove == 2) {
+                        if (cpuMove == 1 || cpu2Move == 1) {
+                            result = "Você perdeu"
+                        } else if (cpuMove == 2 || cpu2Move == 2) {
+                            result = "Empatou"
+                        } else {
+                            result = "Você ganhou"
+                        }
+                    } else {
+                        if (cpuMove == 2 || cpu2Move == 2) {
+                            result = "Você perdeu"
+                        } else if (cpuMove == 3 || cpu2Move == 3) {
+                            result = "Empatou"
+                        } else {
+                            result = "Você ganhou"
+                        }
+                    }
+                    activityMainBinding.resultTv.setText(result)
                 }
-                activityMainBinding.resultTv.setText(result)
+
             }
 
             activityMainBinding.resultTv.visibility = View.VISIBLE
@@ -98,12 +151,18 @@ class MainActivity : AppCompatActivity() {
                     activityMainBinding.resultTv.visibility = View.INVISIBLE
 
                     if (result.data != null) {
-                        val appSettings: AppSettings? =
+                        val appSettingsRl: AppSettings? =
                             result.data?.getParcelableExtra<AppSettings>(Intent.EXTRA_USER)
 
-                        if (appSettings != null) {
+                        if (appSettingsRl != null) {
 
-                            if (appSettings.playersNumber == 2) {
+                            if(appSettings.isCreated){
+                                appSettingsController.insertsetting(appSettingsRl)
+                            } else {
+                                appSettingsController.updateSettings(appSettingsRl)
+                            }
+
+                            if (appSettingsRl.playersNumber == 2) {
                                 activityMainBinding.cpuIv.setImageResource(
                                     resources.getIdentifier("cpu", "drawable", packageName)
                                 )

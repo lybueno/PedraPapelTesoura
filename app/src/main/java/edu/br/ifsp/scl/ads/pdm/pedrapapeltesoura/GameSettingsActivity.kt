@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
 import edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura.databinding.ActivityGameSettingsBinding
+import edu.br.ifsp.scl.ads.pdm.pedrapapeltesoura.model.AppSettings
 
 class GameSettingsActivity : AppCompatActivity() {
 
